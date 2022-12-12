@@ -46,6 +46,8 @@ import javax.swing.JPanel;
 
         public Image Fish1Pic;
         public Image Fish2Pic;
+        public Image Fish1aPic;
+        public Image Fish2aPic;
         public Image backgroundPic;
         public Image fishfoodPic;
 
@@ -53,7 +55,11 @@ import javax.swing.JPanel;
         //These are things that are made up of more than one variable type
         private Fish Fish1;
         public Fish Fish2;
-        public Fish fishFood;
+        public Fish Fish1a;
+        public Fish Fish2a;
+
+        public FishFood fishFood;
+        public int fishFoodTimer = 0;
 
         // Main method definition
         // This is the code that runs first and automatically
@@ -74,6 +80,7 @@ import javax.swing.JPanel;
                 //fishfoodPic = Math.random(int)(Math.random()*400+100);
             //variable and objects
             //create (construct) the objects needed for the game and load up
+
             Fish1Pic = Toolkit.getDefaultToolkit().getImage("fish1.png"); //load the picture
             Fish1 = new Fish("Fish1",10,100); //construct the astronaut
 
@@ -81,6 +88,14 @@ import javax.swing.JPanel;
             Fish2 = new Fish("Fish2", 800, 400);
             Fish2.dx= Fish2.dx*-1;
             Fish2.dy= Fish2.dy*-1;
+
+            Fish1aPic = Toolkit.getDefaultToolkit().getImage("fish1a.png");
+
+            Fish2aPic = Toolkit.getDefaultToolkit().getImage("fish2a.png");
+
+            fishFood = new FishFood("FishFood", 100, 100);
+
+            fishfoodPic = Toolkit.getDefaultToolkit().getImage("fishfood.png");
 
 
 
@@ -101,6 +116,7 @@ import javax.swing.JPanel;
             //for the moment we will loop things forever.
             while (true) {
                 moveThings();  //move all the game objects
+                eating();
                 crash();
                 render();  // paint the graphics
                 pause(20); // sleep for 10 ms
@@ -114,6 +130,37 @@ import javax.swing.JPanel;
 
         }
 
+        public void eating() {
+            if(Fish1.rec.intersects(fishFood.rec) && !fishFood.isEaten){
+                fishFood.isEaten = true;
+                Fish1.width +=50;
+                Fish1.height +=50;
+                fishFood.xpos = (int)((Math.random()*900));
+                fishFood.ypos = (int)((Math.random())*600);
+                fishFood.rec = new Rectangle(fishFood.xpos, fishFood.ypos, fishFood.width, fishFood.height);
+            }
+            if(Fish2.rec.intersects(fishFood.rec ) && !fishFood.isEaten){
+                fishFood.isEaten = true;
+                Fish2.width +=50;
+                Fish2.height +=50;
+                fishFood.xpos = (int)((Math.random()*900));
+                fishFood.ypos = (int)((Math.random())*600);
+                fishFood.rec = new Rectangle(fishFood.xpos, fishFood.ypos, fishFood.width, fishFood.height);
+            }
+//            if(fishFood.isEaten){
+//                if(!fishFood.rec.intersects(Fish1.rec) && !(fishFood.rec.intersects(Fish2.rec))){
+//                    fishFood.isEaten=false;
+//                }
+//            }
+            if (fishFood.isEaten == true) {
+                fishFoodTimer = fishFoodTimer +1;
+            }
+            if(fishFoodTimer > 100){
+                fishFoodTimer = 0;
+                fishFood.isEaten = false;
+            }
+        }
+
         public void crash(){
             //if astro and alien interset they bounce
 
@@ -124,17 +171,17 @@ import javax.swing.JPanel;
                 Fish2.dx = -Fish2.dx;
                 Fish1.dy = -Fish1.dy;
                 Fish2.dy = -Fish2.dy;
-                Fish1.width=Fish1.width+80;
-                Fish1.height=Fish1.height+80;
-                Fish2.width=Fish2.width-10;
-                Fish2.height=Fish2.height-10;
-//			astro.isAlive = false;
+              Fish1.width=Fish1.width-5;
+                Fish1.height=Fish1.height-5;
+                Fish2.width=Fish2.width-5;
+                Fish2.height=Fish2.height-5;
+                //astro.isAlive = false;
             }
             if (!Fish1.rec.intersects(Fish2.rec)){
                 Fish1.isCrashing = false;
+                //fishFood.isAlive=false;
 
             }
-
         }
 
         //Pauses or sleeps the computer for the amount specified in milliseconds
@@ -180,25 +227,40 @@ import javax.swing.JPanel;
             g.clearRect(0, 0, WIDTH, HEIGHT);
             g.drawImage(backgroundPic, 0,0, WIDTH, HEIGHT, null);
 
-            g.drawRect(Fish1.rec.x, Fish1.rec.y, Fish1.rec.width, Fish1.rec.height);
+            //g.drawRect(Fish1.rec.x, Fish1.rec.y, Fish1.rec.width, Fish1.rec.height);
             //draw the image of the astronaut
             if (Fish1.isAlive==true) {
                 if(Fish1.dx>=0) {
-                    g.drawImage(Fish1Pic, Fish1.xpos, Fish1.ypos, Fish1.width, Fish1.height, null);
+                    g.drawImage(Fish1aPic, Fish1.xpos, Fish1.ypos, Fish1.width, Fish1.height, null);
                 }else {
                     g.drawImage(Fish1Pic, Fish1.xpos, Fish1.ypos, Fish1.width, Fish1.height, null);
-
                 }
                // g.drawRect(Fish1.rec.x, Fish1.rec.y, Fish1.rec.width, Fish1.rec.height);
             }
 
-            g.setColor(Color.YELLOW);
-            g.drawRect(Fish2.rec.x, Fish2.rec.y, Fish2.rec.width, Fish2.rec.height);
+            if (Fish2.isAlive==true){
+                if(Fish2.dx>=0){
+                    g.drawImage(Fish2Pic, Fish2.xpos,Fish2.ypos, Fish2.width, Fish2.height, null);
+                } else {
+                    g.drawImage(Fish2aPic,Fish2.xpos,Fish2.ypos, Fish2.width, Fish2.height, null);
+                }
+            }
 
-            g.drawImage(Fish2Pic, Fish2.xpos, Fish2.ypos, Fish2.width, Fish2.height, null);
+
+
+            g.setColor(Color.YELLOW);
+            //g.drawRect(Fish2.rec.x, Fish2.rec.y, Fish2.rec.width, Fish2.rec.height);
+            //g.drawRect(fishFood.rec.x,fishFood.rec.y, fishFood.rec.width, fishFood.rec.height);
+
+//            g.drawImage(Fish2Pic, Fish2.xpos, Fish2.ypos, Fish2.width, Fish2.height, null);
 
           //  g.drawRect(Fish2.rec.x, Fish2.rec.y, Fish2.rec.width, Fish2.rec.height);
 
+            if (fishFoodTimer == 0) {
+                g.drawImage(fishfoodPic, fishFood.xpos, fishFood.ypos, fishFood.width, fishFood.height, null);
+
+            }
+            //g.drawRect(fishFood.rec.x, fishFood.rec.y, fishFood.rec.width, fishFood.rec.height,null);
 
 
 
